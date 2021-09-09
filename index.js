@@ -1,9 +1,11 @@
 const express = require(`express`);
 const app = express();
 
+app.use(express.json());
+
 const produtos = [{
   id: 1,
-  produto: `banana`,
+  nome: `banana`,
   preco: 15
 }];
 
@@ -11,19 +13,25 @@ app.get(`/`, (req, res) => {
   res.send('The server is running');
 })
 
-app.put(`/produto/:id`, (req, res) => {
+
+const die = (...args) => {
+  console.error(...args);
+  process.exit(1);
+}
+
+app.put(`/produtos/:id`, (req, res) => {
   const { nome, preco } = req.body;
   const { id } = req.params;
 
-  produtos.push({ id, nome, preco});
+  produtos.push({ id: Number(id), nome, preco});
 
-  res.status(201).end();
+  res.json(produtos);
 });
 
-app.get(`/produto/:id`, (req, res) => {
+app.get(`/produtos/:id`, (req, res) => {
   const { id } = req.params;
 
-  const produto = produtos.find(produto => produto.id === Number(id));
+  const produto = produtos.reverse().find(produto => produto.id === Number(id));
 
   if (!produto) {
     throw new Error(`Produto não encontrado`);
@@ -32,7 +40,7 @@ app.get(`/produto/:id`, (req, res) => {
   res.json(produto);
 });
 
-app.get(`/produto`, (req, res) => {
+app.get(`/produtos`, (req, res) => {
   const { nome } = req.query;
 
   const filtro = produtos.filter(produto => produto.nome.includes(nome));
